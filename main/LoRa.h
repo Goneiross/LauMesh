@@ -1,0 +1,18 @@
+//LoRa Register
+
+//config
+#define LoRA_REG_FIFO 0x00
+#define LoRA_REG_OPMODE 0x01
+#define LoRA_REG_PACONFIG 0x09
+#define LoRA_REG_REGLNA 0x0C
+
+#define LoRA_REG_FIFO_ADDR_PTR 0x0D
+#define LoRA_REG_FIFO_ADDR_TX 0x0E
+#define LoRA_REG_FIFO_ADDR_RX 0x0F
+#define LoRA_REG_FIFO_ADDR_CURRENT 0x10
+#define LoRA_REG_FLAGS_MASK 0x11
+#define LoRA_REG_MASK 0x12
+#define LoRA_REG_FIFO_RX_BYTES_NB 0x13
+
+
+//
