@@ -1,11 +1,21 @@
 //LoRa Register
 
-//config
+
+/* config */
 #define LoRA_REG_FIFO 0x00
 #define LoRA_REG_OPMODE 0x01
+// ox02 - 0x05 reserved
+#define LoRA_REG_FRMSB 0x06
+#define LoRA_REG_FRMID 0x07
+#define LoRA_REG_FRLSB 0x08
+
+/* RF blocks */
 #define LoRA_REG_PACONFIG 0x09
+#define LoRA_REG_PARAMP 0x0A
+#define LoRA_REG_OCP 0x0b
 #define LoRA_REG_REGLNA 0x0C
 
+/* Lora page */
 #define LoRA_REG_FIFO_ADDR_PTR 0x0D
 #define LoRA_REG_FIFO_ADDR_TX 0x0E
 #define LoRA_REG_FIFO_ADDR_RX 0x0F
@@ -13,6 +23,19 @@
 #define LoRA_REG_FLAGS_MASK 0x11
 #define LoRA_REG_MASK 0x12
 #define LoRA_REG_FIFO_RX_BYTES_NB 0x13
-
+#define LoRA_REG_RX_VALID_HD_MSB_CURRENT 0x14
+#define LoRA_REG_RX_VALID_HD_LSB_CURRENT 0x15
+#define LoRA_REG_RX_VALID_PACKET_MSB_CURRENT 0x16
+#define LoRA_REG_RX_VALID_PACKET_LSB_CURRENT 0x17
+#define LoRA_REG_MODEM_STATUS 0x18
+#define LoRA_REG_PACKET_SNR 0x19
+#define LoRA_REG_RSSI_PACKET 0x1A
+#define LoRA_REG_RSSI_VALUE 0x1B
+#define LoRA_REG_HOP_CHANNEL 0x1C
+#define LoRA_REG_MODEM_CONFIG1 0x1D
+#define LoRA_REG_MODEM_CONFIG2 0x1E
+#define LoRA_REG_SYMB_TIMEOUT_LSB 0x1F
+#define LoRA_REG_MSB_PREAMBLE 0x20
+#define LoRA_REG_LSB_PREAMBLE 0x21
 
 //

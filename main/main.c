@@ -80,7 +80,7 @@ void I2cTest(void* pvParameters){
     i2c_cmd_handle_t testCmd = i2c_cmd_link_create();
     i2c_master_start(testCmd);
     i2c_master_write_byte(testCmd,I2C_SLAVE1_ADRESS << 1 | I2C_MASTER_READ,I2C_MASTER_ACK);
-    i2c_master_read_byte(testCmd,I2C_SLAVE1_ADRESS,0);
+    i2c_master_read_byte(testCmd,I2C_SLAVE1_ADRESS,0x0);
     i2c_master_read(testCmd,&data_read,I2C_DATA_LENGTH,0);
     i2c_master_stop(testCmd);
     info = i2c_master_cmd_begin(SLAVE1_PORT,testCmd, 100 / portTICK_RATE_MS);

@@ -32,17 +32,6 @@
             }
         },
         {
-            "label": "clean app",
-            "command": "make",
-            "type": "shell",
-            "args": [
-                "app-clean"
-            ],
-            "presentation": {
-                "reveal": "always"
-            }
-        },
-        {
             "label": "flash app",
             "command": "make",
             "type": "shell",
@@ -67,21 +56,6 @@
             "presentation": {
                 "reveal": "always"
             }
-        },
-        {
-            "label": "menuconfig",
-            "type": "process",
-            "windows": {
-                "command": "C:/msys32/mingw32.exe",
-                "args": [
-                    "make",
-                    "menuconfig"
-                ]
-            },
-            "presentation": {
-                "reveal": "always"
-            },
-            "problemMatcher": []
         }
     ]
 }
