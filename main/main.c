@@ -80,6 +80,10 @@ void LoRaConf(){
     if (done != 0) {printf("LoRaConfig ERROR");}
 }
 
+void LoRaRead(){
+    
+}
+
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&test,"test",2048,NULL,0,NULL,0);

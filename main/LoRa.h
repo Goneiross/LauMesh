@@ -89,3 +89,12 @@ int i2c_write_reg_adress(uint8_t i2c_adress,uint8_t reg_adress,uint8_t data){
     i2c_cmd_link_delete(cmd);
     return(0);
 }
+
+int i2c_read_reg_adress(uint8_t i2c_adress,uint8_t reg_adress,uint8_t data){
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, i2c_adress << 1 | I2C_MASTER_WRITE,ACK_EN);
+    i2c_master_write_byte(cmd, i2c_adress << reg_adress, I2C_MASTER_READ);
+    i2c_master_read(cmd,&data,I2C_DATA_LENGTH, 0x00);
+    i2c_master_stop(cmd);
+    return(0)
