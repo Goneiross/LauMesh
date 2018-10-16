@@ -76,7 +76,7 @@ void I2cTest(void* pvParameters){
 
 void LoRaConf(void* pvparameters){
     int done = 0;
-    done = i2c_write_reg_adress(LORA_I2C_ADR, LoRA_REG_OPMODE,0x81);
+    done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x81);
     if (done != 0) {printf("LoRaConfig ERROR\n");}
     else {printf("LoRa Config done\n");}
     vTaskDelete(NULL);
@@ -84,7 +84,12 @@ void LoRaConf(void* pvparameters){
 
 void LoraBuffRead(void* pvParameters){
     uint8_t data_read = 0;
-    i2c_write_reg_adress(LORA_I2C_ADR,0x0F,data_read);
+    i2c_read_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_RX,data_read);
+    vTaskDelete(NULL);
+}
+
+void LoRaBuffWrite(uint8_t data){
+    i2c_write_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_TX,data);
     vTaskDelete(NULL);
 }
 
