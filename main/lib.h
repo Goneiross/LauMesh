@@ -16,6 +16,14 @@
 
 #define ACK_EN 0x01
 
+#define PIN_IN_1 NULL
+#define PIN_IN_2 NULL
+#define PIN_IN_3 NULL
+
+#define PIN_OUT_1 NULL
+#define PIN_OUT_2 NULL
+#define PIN_OUT_3 NULL
+
 /* ########## LORA REGISTER ########## */
 
 #define LORA_PORT_CLK 19
@@ -79,6 +87,13 @@
 #define LORA_REG_SYNC_WORD 0x39
 // 0x3A - 0X3F reserved
 
+/* LoRa Mode */
+#define LORA_MODE_SLEEP 0x00
+#define LORA_MODE_STB 0x01
+#define LORA_MODE_TX 0x03
+#define LORA_MODE_RX_CONTINUOUS 0x05
+#define LORA_MODE_RX_SINGLE 0x06
+
 int i2c_write_reg_adress(uint8_t i2c_adress,uint8_t reg_adress,uint8_t data){
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
     i2c_master_start(cmd);
@@ -98,4 +113,77 @@ int i2c_read_reg_adress(uint8_t i2c_adress,uint8_t reg_adress,uint8_t data){
     i2c_master_read(cmd,&data,I2C_DATA_LENGTH, 0x00);
     i2c_master_stop(cmd);
     return(0);
+}
+
+void LoRaGetStatus(){
+    uint8_t data_read = 0;
+    int signalDetected, signalSyncronixed, rxOn, headerInfValid, modemClear, codingRate = 0;
+    i2c_write_reg_adress(LORA_I2C_ADR,0x18,data_read);
+    while(data_read > 0)
+    {
+        if(data_read - 0x80 >= 0){
+            codingRate += 4;
+            data_read -= 0x80;
+        }
+        else if(data_read - 0x40 >= 0){
+            data_read -= 0x40;
+            codingRate += 2;
+        }
+        else if(data_read - 0x20 >= 0){
+            data_read -= 0x20;
+            codingRate += 1;
+        }
+        else if(data_read - 0x10 >= 0){
+            data_read -= 0x10;
+            modemClear = 1;
+        }
+        else if(data_read - 0x08 >= 0){
+            data_read -= 0x08;
+            headerInfValid = 1;
+        }
+        else if(data_read - 0x04>= 0){
+            data_read -= 0x04;
+            rxOn = 1;
+        }
+        else if(data_read - 0x02 >= 0){
+            data_read -= 0x02;
+            signalSyncronixed = 1;
+        }
+        else if(data_read - 0x01 >= 0){
+            data_read -= 0x01;
+            signalDetected = 1;
+        }
+    }
+    //add return
+}
+
+uint8_t LoraBufferRead(void* pvParameters){
+    uint8_t data_read = 0;
+    i2c_read_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_RX,data_read);
+    return(data_read);
+}
+
+void LoRaBufferWrite(uint8_t data){
+    i2c_write_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_TX,data);
+}
+
+void LoRaOPMode(uint8_t mode){ //AJOUTER MODE
+    int done = 1;
+    if (mode == LORA_MODE_SLEEP){ //SLEEP
+        done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x80);
+    }
+    else if (mode == LORA_MODE_STB){ //StandBy
+        done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x81);
+    }
+    else if (mode == LORA_MODE_TX){ //TX
+        done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x83);
+    }
+    else if (mode == LORA_MODE_RX_CONTINUOUS){ //RX continuous
+        done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x85);
+    }
+    else if (mode == LORA_MODE_RX_SINGLE){ //RX single
+        done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x86);
+    }
+    if (done != 0) {printf("LoRaConfig ERROR\n");}
+    else {printf("LoRa Config done\n");}
 }

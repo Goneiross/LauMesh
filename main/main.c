@@ -7,23 +7,15 @@
 #include "esp_spi_flash.h"
 #include "driver/gpio.h"
 #include "driver/i2c.h"
-#include "LoRa.h"
+#include "lib.h"
 
-#define PIN_IN_1 NULL
-#define PIN_IN_2 NULL
-#define PIN_IN_3 NULL
 
-#define PIN_OUT_1 NULL
-#define PIN_OUT_2 NULL
-#define PIN_OUT_3 NULL
-
-void test(void* pvParamters){
+void runTest(void* pvParamters){
     time_t time0;
     while(1){
         time0 = time(NULL);
         printf("En cours d'execution depuis %ld minutes\n",time0/60);
         vTaskDelay(60000/portTICK_RATE_MS);
-        esp_restart();
     }  
     vTaskDelete(NULL);
 }
@@ -74,73 +66,12 @@ void I2cTest(void* pvParameters){
     vTaskDelete(NULL);
 }
 
-void LoRaConf(void* pvparameters){
-    int done = 0;
-    done = i2c_write_reg_adress(LORA_I2C_ADR, LORA_REG_OPMODE,0x81);
-    if (done != 0) {printf("LoRaConfig ERROR\n");}
-    else {printf("LoRa Config done\n");}
-    vTaskDelete(NULL);
-}
-
-void LoraBuffRead(void* pvParameters){
-    uint8_t data_read = 0;
-    i2c_read_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_RX,data_read);
-    vTaskDelete(NULL);
-}
-
-void LoRaBuffWrite(uint8_t data){
-    i2c_write_reg_adress(LORA_I2C_ADR,LORA_REG_FIFO_ADDR_TX,data);
-    vTaskDelete(NULL);
-}
-
-void LoRaGetStatus(){
-    uint8_t data_read = 0;
-    int signalDetected, signalSyncronixed, rxOn, headerInfValid, modemClear, codingRate = 0;
-    i2c_write_reg_adress(LORA_I2C_ADR,0x18,data_read);
-    while(data_read > 0)
-    {
-        if(data_read - 0x80 >= 0){
-            codingRate += 4;
-            data_read -= 0x80;
-        }
-        else if(data_read - 0x40 >= 0){
-            data_read -= 0x40;
-            codingRate += 2;
-        }
-        else if(data_read - 0x20 >= 0){
-            data_read -= 0x20;
-            codingRate += 1;
-        }
-        else if(data_read - 0x10 >= 0){
-            data_read -= 0x10;
-            modemClear = 1;
-        }
-        else if(data_read - 0x08 >= 0){
-            data_read -= 0x08;
-            headerInfValid = 1;
-        }
-        else if(data_read - 0x04>= 0){
-            data_read -= 0x04;
-            rxOn = 1;
-        }
-        else if(data_read - 0x02 >= 0){
-            data_read -= 0x02;
-            signalSyncronixed = 1;
-        }
-        else if(data_read - 0x01 >= 0){
-            data_read -= 0x01;
-            signalDetected = 1;
-        }
-    }
-    vTaskDelete(NULL);
-}
-
 void app_main(){
     printf("Initialisation en cours ... \n");
-    xTaskCreatePinnedToCore(&test,"test",2048,NULL,0,NULL,0);
+    xTaskCreatePinnedToCore(&runTest,"runTest",2048,NULL,0,NULL,0);
     xTaskCreatePinnedToCore(&I2cMasterInit,"I2cMasterInit",2048,NULL,4,NULL,0);
     xTaskCreatePinnedToCore(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
-    xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
-    xTaskCreatePinnedToCore(&LoRaConf,"LoRaConf",2048,NULL,4,NULL,0);
+    //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
+    LoRaOPMode(LORA_MODE_STB);
     printf("0 \n");
 }
