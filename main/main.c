@@ -88,6 +88,48 @@ void LoraBuffRead(void* pvParameters){
     vTaskDelete(NULL);
 }
 
+void LoRaGetStatus(){
+    uint8_t data_read = 0;
+    int signalDetected, signalSyncronixed, rxOn, headerInfValid, modemClear, codingRate = 0;
+    i2c_write_reg_adress(LORA_I2C_ADR,0x18,data_read);
+    while(data_read > 0)
+    {
+        if(data_read - 0x80 >= 0){
+            codingRate += 4;
+            data_read -= 0x80;
+        }
+        else if(data_read - 0x40 >= 0){
+            data_read -= 0x40;
+            codingRate += 2;
+        }
+        else if(data_read - 0x20 >= 0){
+            data_read -= 0x20;
+            codingRate += 1;
+        }
+        else if(data_read - 0x10 >= 0){
+            data_read -= 0x10;
+            modemClear = 1;
+        }
+        else if(data_read - 0x08 >= 0){
+            data_read -= 0x08;
+            headerInfValid = 1;
+        }
+        else if(data_read - 0x04>= 0){
+            data_read -= 0x04;
+            rxOn = 1;
+        }
+        else if(data_read - 0x02 >= 0){
+            data_read -= 0x02;
+            signalSyncronixed = 1;
+        }
+        else if(data_read - 0x01 >= 0){
+            data_read -= 0x01;
+            signalDetected = 1;
+        }
+    }
+    vTaskDelete(NULL);
+}
+
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&test,"test",2048,NULL,0,NULL,0);
