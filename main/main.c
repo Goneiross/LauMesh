@@ -70,14 +70,22 @@ void I2cTest(void* pvParameters){
     info = i2c_master_cmd_begin(SLAVE1_PORT,testCmd, 100 / portTICK_RATE_MS);
     i2c_cmd_link_delete(testCmd);
     if(info == 0) {printf(data_read);}
-    else {printf("erreur");}
+    else {printf("Error\n");}
     vTaskDelete(NULL);
 }
 
-void LoRaConf(){
+void LoRaConf(void* pvparameters){
     int done = 0;
     done = i2c_write_reg_adress(LORA_I2C_ADR, LoRA_REG_OPMODE,0x81);
-    if (done != 0) {printf("LoRaConfig ERROR");}
+    if (done != 0) {printf("LoRaConfig ERROR\n");}
+    else {printf("LoRa Config done\n");}
+    vTaskDelete(NULL);
+}
+
+void LoraBuffRead(void* pvParameters){
+    uint8_t data_read = 0;
+    i2c_write_reg_adress(LORA_I2C_ADR,0x0F,data_read);
+    vTaskDelete(NULL);
 }
 
 void app_main(){
@@ -87,4 +95,5 @@ void app_main(){
     xTaskCreatePinnedToCore(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
     xTaskCreatePinnedToCore(&LoRaConf,"LoRaConf",2048,NULL,4,NULL,0);
+    printf("0 \n");
 }
