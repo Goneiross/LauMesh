@@ -17,22 +17,6 @@
 #define PIN_OUT_2 NULL
 #define PIN_OUT_3 NULL
 
-#define PIN_I2C_MASTER_DATA 21
-#define PIN_I2C_MASTER_CLOCK 22
-#define MASTER_PORT 0
-
-#define PIN_I2C_SLAVE1_DATA 21
-#define PIN_I2C_SLAVE1_CLOCK 22
-#define I2C_SLAVE1_ADRESS 0
-#define SLAVE1_PORT 0
-
-#define I2C_RECEVING_BUFFER_SIZE 2048
-#define I2C_SENDING_BUFFER_SIZE 2048
-#define I2C_DATA_LENGTH 1024
-
-#define i2C_TIMEOUT 1000
-#define CLOCK_SPEED 1000 
-
 void test(void* pvParamters){
     time_t time0;
     while(1){
@@ -79,7 +63,7 @@ void I2cTest(void* pvParameters){
     printf("Teste de la connection I2C \n");
     i2c_cmd_handle_t testCmd = i2c_cmd_link_create();
     i2c_master_start(testCmd);
-    i2c_master_write_byte(testCmd,I2C_SLAVE1_ADRESS << 1 | I2C_MASTER_READ,I2C_MASTER_ACK);
+    i2c_master_write_byte(testCmd,I2C_SLAVE1_ADRESS << 1 | I2C_MASTER_READ,ACK_EN);
     i2c_master_read_byte(testCmd,I2C_SLAVE1_ADRESS,0x0);
     i2c_master_read(testCmd,&data_read,I2C_DATA_LENGTH,0);
     i2c_master_stop(testCmd);
@@ -89,10 +73,18 @@ void I2cTest(void* pvParameters){
     else {printf("erreur");}
     vTaskDelete(NULL);
 }
+
+void LoRaConf(){
+    int done = 0;
+    done = i2c_write_reg_adress(LORA_I2C_ADR, LoRA_REG_OPMODE,0x81);
+    if (done != 0) {printf("LoRaConfig ERROR");}
+}
+
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&test,"test",2048,NULL,0,NULL,0);
     xTaskCreatePinnedToCore(&I2cMasterInit,"I2cMasterInit",2048,NULL,4,NULL,0);
     xTaskCreatePinnedToCore(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
+    xTaskCreatePinnedToCore(&LoRaConf,"LoRaConf",2048,NULL,4,NULL,0);
 }

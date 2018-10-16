@@ -1,5 +1,26 @@
-//LoRa Register
+#define PIN_I2C_MASTER_DATA 18
+#define PIN_I2C_MASTER_CLOCK 19
+#define MASTER_PORT 0
 
+#define PIN_I2C_SLAVE1_DATA 25
+#define PIN_I2C_SLAVE1_CLOCK 26
+#define I2C_SLAVE1_ADRESS 0
+#define SLAVE1_PORT 0
+
+#define I2C_RECEVING_BUFFER_SIZE 2048
+#define I2C_SENDING_BUFFER_SIZE 2048
+#define I2C_DATA_LENGTH 1024
+
+#define i2C_TIMEOUT 1000
+#define CLOCK_SPEED 1000 
+
+#define ACK_EN 0x01
+
+/* ########## LORA REGISTER ########## */
+
+#define LORA_PORT_CLK 19
+#define LORA_PORT_DATA 18
+#define LORA_I2C_ADR 0x00
 
 /* config */
 #define LoRA_REG_FIFO 0x00
@@ -37,5 +58,34 @@
 #define LoRA_REG_SYMB_TIMEOUT_LSB 0x1F
 #define LoRA_REG_MSB_PREAMBLE 0x20
 #define LoRA_REG_LSB_PREAMBLE 0x21
+#define LoRA_REG_PAYLOAD_LENGTH 0x22
+#define LoRA_REG_PAYLOAD_MAX_LENGTH 0x23
+#define LoRA_REG_HOP_PERIOD 0x24
+#define LoRA_REG_FIFO_RX_BYTE_ADDR_PTR 0x25
+#define LoRA_REG_MODEM_CONFIG3 0x26
+#define LoRA_REG_PPM_CORRECTION 0x27
+#define LoRA_REG_FEI_MSB 0x28
+#define LoRA_REG_FEI_MID 0x29
+#define LoRA_REG_FEI_LSB 0x2a
+// 0x2B reserved
+#define LoRA_REG_RSSI_WIDEBAND 0x2c
+// ox2D - 0x30 reserved
+#define LoRA_REG_DETECT_OPTI 0x31
+// 0x32 reserved
+#define LoRA_REG_INVERT_IQ 0x33
+// 0x34 - 0x36 reserved
+#define LoRA_REG_DETECT_THRESHOLD 0x37
+// 0x38 reserved
+#define LoRA_REG_SYNC_WORD 0x39
+// 0x3A - 0X3F reserved
 
-//
+int i2c_write_reg_adress(uint8_t i2c_adress,uint8_t reg_adress,uint8_t data){
+    i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    i2c_master_start(cmd);
+    i2c_master_write_byte(cmd, i2c_adress << 1 | I2C_MASTER_WRITE, ACK_EN);
+    i2c_master_write_byte(cmd, i2c_adress << reg_adress | I2C_MASTER_WRITE, ACK_EN);
+    i2c_master_write_byte(cmd, i2c_adress << data, ACK_EN);
+    i2c_master_stop(cmd);
+    i2c_cmd_link_delete(cmd);
+    return(0);
+}
