@@ -7,8 +7,13 @@
 #include "esp_spi_flash.h"
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "driver/spi_common.h"
+#include "driver/spi_master.h"
+#include "nvs.h"
+#include "nvs_flash.h"
+#include "esp_ota_ops.h"
+#include "esp_wifi.h"
 #include "lib.h"
-
 
 void runTest(void* pvParamters){
     time_t time0;
@@ -66,12 +71,33 @@ void I2cTest(void* pvParameters){
     vTaskDelete(NULL);
 }
 
+void loadUpdate(){
+    //WIFI
+    nvs_flash_init();
+    tcpip_adapter_init();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    esp_wifi_set_mode( WIFI_MODE_STA);
+    wifi_sta_config_t wifi_cfg = {
+            .ssid = "MPSI",
+            .password = "LivingForMaths"
+    }; 
+    esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg);
+    esp_wifi_start();
+    //esp_wifi_stop();
+    esp_wifi_connect();
+    //nvs_flash_deinit();
+    //esp_wifi_deinit();
+    vTaskDelete(NULL);
+    printf("done\n");
+}
+
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&runTest,"runTest",2048,NULL,0,NULL,0);
-    xTaskCreatePinnedToCore(&I2cMasterInit,"I2cMasterInit",2048,NULL,4,NULL,0);
-    xTaskCreatePinnedToCore(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
+    //xTaskCreatePinnedToCore(&I2cMasterInit,"I2cMasterInit",2048,NULL,4,NULL,0);
+    //(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
-    LoRaOPMode(LORA_MODE_STB);
-    printf("0 \n");
+    //LoRaOPMode(LORA_MODE_STB);
+    xTaskCreate(&loadUpdate,"loadUpdate",2048,NULL,4,NULL);
 }
