@@ -3,6 +3,7 @@
 #include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_event_loop.h"
 #include "esp_system.h"
 #include "esp_spi_flash.h"
 #include "driver/gpio.h"
@@ -11,9 +12,21 @@
 #include "driver/spi_master.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+// #include "ssd1306.h"
 #include "esp_ota_ops.h"
 #include "esp_wifi.h"
 #include "lib.h"
+
+#include "esp_log.h"
+#include "esp_console.h"
+#include "esp_vfs_dev.h"
+#include "driver/uart.h"
+#include "linenoise/linenoise.h"
+#include "argtable3/argtable3.h"
+#include "esp_vfs_fat.h"
+
+#define PIN_M1 2
+#define PIN_M2 4
 
 void runTest(void* pvParamters){
     time_t time0;
@@ -65,7 +78,7 @@ void I2cTest(void* pvParameters){
     i2c_master_read(testCmd,&data_read,I2C_DATA_LENGTH,0);
     i2c_master_stop(testCmd);
     info = i2c_master_cmd_begin(SLAVE1_PORT,testCmd, 100 / portTICK_RATE_MS);
-    i2c_cmd_link_delete(testCmd);
+    i2c_cmd_link_delete(testCmd);   
     if(info == 0) {printf(data_read);}
     else {printf("Error\n");}
     vTaskDelete(NULL);
@@ -74,15 +87,19 @@ void I2cTest(void* pvParameters){
 void loadUpdate(){
     //WIFI
     nvs_flash_init();
+    esp_event_loop_init(NULL,NULL);
     tcpip_adapter_init();
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    esp_wifi_init(&cfg);
+    
     esp_wifi_set_mode( WIFI_MODE_STA);
-    wifi_sta_config_t wifi_cfg = {
+    wifi_config_t wifi_cfg = {
+        .sta = {
             .ssid = "MPSI",
             .password = "LivingForMaths"
-    }; 
-    esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg);
+        },
+    };
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg));
     esp_wifi_start();
     //esp_wifi_stop();
     esp_wifi_connect();
@@ -92,6 +109,51 @@ void loadUpdate(){
     printf("done\n");
 }
 
+void LoRa868T20D_ini(){
+    printf("LoraIniTest");
+    nvs_flash_init();
+    esp_event_loop_init(NULL,NULL);
+    gpio_pad_select_gpio(PIN_M1);
+    gpio_set_direction(PIN_M1, GPIO_MODE_OUTPUT);
+    gpio_pad_select_gpio(PIN_M2);
+    gpio_set_direction(PIN_M2, GPIO_MODE_OUTPUT);
+
+    gpio_set_level(PIN_M1, 0); //SET M1 and M2 to 0 to select normal mode
+    gpio_set_level(PIN_M2, 0);
+    
+    const int uart_num = UART_NUM_0;
+    uart_config_t uart_config = {
+        .baud_rate = 115200,
+        .data_bits = UART_DATA_8_BITS,
+        .parity = UART_PARITY_DISABLE,
+        .stop_bits = UART_STOP_BITS_1,
+        .flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS,
+        .rx_flow_ctrl_thresh = 122,
+    };
+    
+    uart_set_pin(uart_num, 0, 0, 0, 0);
+    
+    uart_param_config(uart_num, &uart_config);
+    
+    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0);
+    printf("done");
+    vTaskDelete(NULL);
+}
+
+void LoRa868T20D_read(){
+    bool end = false;
+    while(!end){
+
+    }
+}
+
+void LoRa868T20D_write(){
+    bool end = false;
+    while(!end){
+
+    }
+}
+
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&runTest,"runTest",2048,NULL,0,NULL,0);
@@ -99,5 +161,8 @@ void app_main(){
     //(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
     //LoRaOPMode(LORA_MODE_STB);
-    xTaskCreate(&loadUpdate,"loadUpdate",2048,NULL,4,NULL);
+    //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);  
+    xTaskCreate(&LoRa868T20D_ini,"LoRa_ini",4096,NULL,0,NULL);
+    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",2048,NULL,0,NULL,0);
+
 }
