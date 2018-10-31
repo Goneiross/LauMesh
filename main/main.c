@@ -112,7 +112,7 @@ void loadUpdate(){
     */
 
 void LoRa868T20D_ini(){ //const int uart_num
-    const int uart_num = 2; 
+    const int uart_num = UART_NUM_2; 
     
     printf("LoraIniTest\n");
     //nvs_flash_init();
@@ -138,9 +138,9 @@ void LoRa868T20D_ini(){ //const int uart_num
     esp_err_t err = uart_set_pin(uart_num, 17, 16, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     printf(err);
 
-    //uart_param_config(uart_num, &uart_config);
+    ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
     
-    ESP_ERROR_CHECK(uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0));
+    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0);
     printf("done\n");
     vTaskDelete(NULL);
 }
@@ -152,7 +152,7 @@ void LoRa868T20D_read(){
         char* data[256];
         size_t length = 0;
         uart_get_buffered_data_len(uart_num, &length);
-        uart_read_bytes(uart_num, &data, length, 100);
+        uart_read_bytes(uart_num, &data, 256, 100);
         printf(data);
     }
     vTaskDelete(NULL);
@@ -175,6 +175,6 @@ void app_main(){
     //LoRaOPMode(LORA_MODE_STB);
     //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);
     xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",4096,NULL,5,NULL,1);
-    xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,0);
+    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,0);
 
 }
