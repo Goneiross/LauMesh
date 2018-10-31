@@ -112,7 +112,7 @@ void loadUpdate(){
     */
 
 void LoRa868T20D_ini(){ //const int uart_num
-    const int uart_num = 0; 
+    const int uart_num = 2; 
     
     printf("LoraIniTest\n");
     //nvs_flash_init();
@@ -128,15 +128,16 @@ void LoRa868T20D_ini(){ //const int uart_num
     const uart_config_t uart_config = {
         .baud_rate = 9600,
         .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
+            .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS,
         .rx_flow_ctrl_thresh = 122,
         .use_ref_tick = false,
     };
-    
-    uart_set_pin(uart_num, 1, 3, 22, 19);
-    
+
+    esp_err_t err = uart_set_pin(uart_num, 17, 16, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    printf(err);
+
     //uart_param_config(uart_num, &uart_config);
     
     ESP_ERROR_CHECK(uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0));
