@@ -38,6 +38,7 @@ void runTest(void* pvParamters){
     vTaskDelete(NULL);
 }
 
+/*
 void I2cMasterInit(void* pvParameters){
     i2c_config_t i2cMasterConfig;
     i2cMasterConfig.mode = I2C_MODE_MASTER;
@@ -108,6 +109,7 @@ void loadUpdate(){
     vTaskDelete(NULL);
     printf("done\n");
 }
+    */
 
 void LoRa868T20D_ini(){ //const int uart_num
     const int uart_num = 0; 
@@ -130,12 +132,13 @@ void LoRa868T20D_ini(){ //const int uart_num
         .stop_bits = UART_STOP_BITS_1,
         .flow_ctrl = UART_HW_FLOWCTRL_CTS_RTS,
         .rx_flow_ctrl_thresh = 122,
+        .use_ref_tick = false,
     };
     
     uart_set_pin(uart_num, 1, 3, 22, 19);
-    /*
-    uart_param_config(uart_num, &uart_config);
-    */
+    
+    //uart_param_config(uart_num, &uart_config);
+    
     ESP_ERROR_CHECK(uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0));
     printf("done\n");
     vTaskDelete(NULL);
