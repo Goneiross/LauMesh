@@ -109,10 +109,12 @@ void loadUpdate(){
     printf("done\n");
 }
 
-void LoRa868T20D_ini(){
-    printf("LoraIniTest");
-    nvs_flash_init();
-    esp_event_loop_init(NULL,NULL);
+void LoRa868T20D_ini(){ //const int uart_num
+    const int uart_num = 0; 
+    
+    printf("LoraIniTest\n");
+    //nvs_flash_init();
+    //esp_event_loop_init(NULL,NULL);
     gpio_pad_select_gpio(PIN_M1);
     gpio_set_direction(PIN_M1, GPIO_MODE_OUTPUT);
     gpio_pad_select_gpio(PIN_M2);
@@ -120,10 +122,9 @@ void LoRa868T20D_ini(){
 
     gpio_set_level(PIN_M1, 0); //SET M1 and M2 to 0 to select normal mode
     gpio_set_level(PIN_M2, 0);
-    
-    const int uart_num = UART_NUM_0;
-    uart_config_t uart_config = {
-        .baud_rate = 115200,
+
+    const uart_config_t uart_config = {
+        .baud_rate = 9600,
         .data_bits = UART_DATA_8_BITS,
         .parity = UART_PARITY_DISABLE,
         .stop_bits = UART_STOP_BITS_1,
@@ -131,20 +132,26 @@ void LoRa868T20D_ini(){
         .rx_flow_ctrl_thresh = 122,
     };
     
-    uart_set_pin(uart_num, 0, 0, 0, 0);
-    
+    uart_set_pin(uart_num, 1, 3, 22, 19);
+    /*
     uart_param_config(uart_num, &uart_config);
-    
-    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0);
-    printf("done");
+    */
+    ESP_ERROR_CHECK(uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0));
+    printf("done\n");
     vTaskDelete(NULL);
 }
 
 void LoRa868T20D_read(){
+    uart_port_t uart_num = 0;
     bool end = false;
     while(!end){
-
+        char* data[256];
+        size_t length = 0;
+        uart_get_buffered_data_len(uart_num, &length);
+        uart_read_bytes(uart_num, &data, length, 100);
+        printf(data);
     }
+    vTaskDelete(NULL);
 }
 
 void LoRa868T20D_write(){
@@ -152,6 +159,7 @@ void LoRa868T20D_write(){
     while(!end){
 
     }
+    vTaskDelete(NULL);
 }
 
 void app_main(){
@@ -161,8 +169,8 @@ void app_main(){
     //(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
     //LoRaOPMode(LORA_MODE_STB);
-    //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);  
-    xTaskCreate(&LoRa868T20D_ini,"LoRa_ini",4096,NULL,0,NULL);
-    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",2048,NULL,0,NULL,0);
+    //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);
+    xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",4096,NULL,5,NULL,1);
+    xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,0);
 
 }
