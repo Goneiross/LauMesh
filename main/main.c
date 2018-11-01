@@ -122,7 +122,7 @@ void LoRa868T20D_ini(){
     gpio_set_level(PIN_M1, 0); //SET M1 and M2 to 0 to select normal mode
     gpio_set_level(PIN_M2, 0);
 
-    esp_err_t err = uart_set_pin(uart_num, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    esp_err_t err = uart_set_pin(uart_num, GPIO_NUM_17, GPIO_NUM_16, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     
     uart_set_baudrate(uart_num, 9600);
     uart_set_word_length(uart_num, UART_DATA_8_BITS);
@@ -130,8 +130,14 @@ void LoRa868T20D_ini(){
     uart_set_stop_bits(uart_num, UART_STOP_BITS_1);
     uart_set_hw_flow_ctrl(uart_num,UART_HW_FLOWCTRL_DISABLE, 122);
 
-    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 0, 0, NULL, 0);
+    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 256, 0, NULL, 0);
     printf("LoRa Ini Done\n");
+
+
+    char* data[128];
+    ESP_ERROR_CHECK(uart_read_bytes(uart_num, &data, 128, 5000));
+    printf(data);
+
     vTaskDelete(NULL);
 }
 
@@ -141,8 +147,6 @@ void LoRa868T20D_read(){
     bool end = false;
     while(!end){
         char* data[128];
-        //size_t length = 0;
-        //uart_get_buffered_data_len(uart_num, (size_t*)&length);
         ESP_ERROR_CHECK(uart_read_bytes(uart_num, &data, 128, 5000));
         printf(data);
     }
@@ -166,6 +170,6 @@ void app_main(){
     //LoRaOPMode(LORA_MODE_STB);
     //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);
     xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",8192,NULL,5,NULL,1);
-    xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,1);
+    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,1);
 
 }
