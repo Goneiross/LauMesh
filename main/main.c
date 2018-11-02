@@ -111,54 +111,73 @@ void loadUpdate(){
 }
     */
 
-void LoRa868T20D_ini(){ 
-    const int uart_num = UART_NUM_2; 
+void LoRa868T20D_ini(uart_port_t uart_num){ 
     
     gpio_pad_select_gpio(PIN_M1);
     gpio_set_direction(PIN_M1, GPIO_MODE_OUTPUT);
     gpio_pad_select_gpio(PIN_M2);
     gpio_set_direction(PIN_M2, GPIO_MODE_OUTPUT);
-
     gpio_set_level(PIN_M1, 0); //SET M1 and M2 to 0 to select normal mode
     gpio_set_level(PIN_M2, 0);
-
-    esp_err_t err = uart_set_pin(uart_num, GPIO_NUM_17, GPIO_NUM_16, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    
+    esp_err_t err1 = uart_set_pin(uart_num, GPIO_NUM_17, GPIO_NUM_16, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+    if (err1 != ESP_OK){
+        printf("Error LoRa setPin");
+    }
     
     uart_set_baudrate(uart_num, 9600);
     uart_set_word_length(uart_num, UART_DATA_8_BITS);
     uart_set_parity(uart_num, UART_PARITY_DISABLE);
     uart_set_stop_bits(uart_num, UART_STOP_BITS_1);
-    uart_set_hw_flow_ctrl(uart_num,UART_HW_FLOWCTRL_DISABLE, 122);
-
-    uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 256, 0, NULL, 0);
-    printf("LoRa Ini Done\n");
+    uart_set_hw_flow_ctrl(uart_num,UART_HW_FLOWCTRL_DISABLE, 0);
 
 
-    char* data[128];
-    ESP_ERROR_CHECK(uart_read_bytes(uart_num, &data, 128, 5000));
-    printf(data);
-
+    
+    esp_err_t err2 = uart_driver_install(CONFIG_CONSOLE_UART_NUM,256, 256, 0, NULL, 0);
+    if (err2 != ESP_OK){
+        printf("Error during LoRa driver install\n");
+    }
+    
     vTaskDelete(NULL);
 }
 
-void LoRa868T20D_read(){
+void LoRa868T20D_read(uart_port_t uart_num){
     vTaskDelay(5000/portTICK_RATE_MS);
-    uart_port_t uart_num = UART_NUM_2;
     bool end = false;
     while(!end){
-        char* data[128];
-        ESP_ERROR_CHECK(uart_read_bytes(uart_num, &data, 128, 5000));
-        printf(data);
+        uint8_t* data[128];
+        int readBytes = uart_read_bytes(uart_num, &data, 128, 5000);
+        if (readBytes > 0){
+            printf(readBytes);
+            printf(data);
+        }
+        else{
+            printf("ERROR no data\n");
+        }
+        vTaskDelay(1000/portTICK_RATE_MS);
+    } 
+    vTaskDelete(NULL);
+}
+
+void LoRa868T20D_write(uart_port_t uart_num){
+    vTaskDelay(10000/portTICK_RATE_MS);
+    bool end = false;
+    while(!end){
+        uart_write_bytes(uart_num, "0", 1);
+        vTaskDelay(10/portTICK_RATE_MS);
     }
     vTaskDelete(NULL);
 }
 
-void LoRa868T20D_write(){
-    bool end = false;
-    while(!end){
+void LoRa868T20D_paramTest(uart_port_t uart_num){
+    gpio_pad_select_gpio(PIN_M1);
+    gpio_set_direction(PIN_M1, GPIO_MODE_OUTPUT);
+    gpio_pad_select_gpio(PIN_M2);
+    gpio_set_direction(PIN_M2, GPIO_MODE_OUTPUT);
+    gpio_set_level(PIN_M1, 1); //SET M1 and M2 to 11 to select config mode
+    gpio_set_level(PIN_M2, 1);
 
-    }
-    vTaskDelete(NULL);
+
 }
 
 void app_main(){
@@ -169,7 +188,8 @@ void app_main(){
     //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
     //LoRaOPMode(LORA_MODE_STB);
     //xTaskCreate(&loadUpdate,"loadUpdate",10000,NULL,4,NULL);
-    xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",8192,NULL,5,NULL,1);
-    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,NULL,4,NULL,1);
+    xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",8192,UART_NUM_2,5,NULL,1);
+    //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,UART_NUM_2,4,NULL,1);
+    xTaskCreatePinnedToCore(&LoRa868T20D_write,"LoRa_write",8192,UART_NUM_2,4,NULL,1);
 
 }
