@@ -33,6 +33,7 @@ void WIFI_Connect(){
 
 
 void updateGithub(){
+    vTaskDelay(10000/portTICK_RATE_MS);
     const char* cert = \
     "-----BEGIN CERTIFICATE-----\n" \
     "MIIHQjCCBiqgAwIBAgIQCgYwQn9bvO1pVzllk7ZFHzANBgkqhkiG9w0BAQsFADB1\n"\
@@ -78,10 +79,10 @@ void updateGithub(){
 
 
     esp_http_client_config_t config = {
-        .url = "github.com/Goneiross",
-        .cert_pem = (char *)cert,
+        .url = "http://github.com/Goneiross/LauMesh/raw/master/build/LauMesh.bin",
+        //.cert_pem = cert,
     };
-    esp_err_t ret = esp_https_ota(&config);
+    esp_https_ota(&config);
     ESP_LOGI("ESP_OTA","OTA update done");
     ESP_LOGI("ESP_OTA","Rebooting ESP in 10 secs");
     vTaskDelay(10000/portTICK_RATE_MS);

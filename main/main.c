@@ -23,14 +23,15 @@ void runTest(void* pvParamters){
 }
 
 void app_main(){
-    printf("Initialisation en cours ... \n");
+    //printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&runTest,"runTest",2048,NULL,0,NULL,0);
     //xTaskCreatePinnedToCore(&I2cMasterInit,"I2cMasterInit",2048,NULL,4,NULL,0);
     //xTaskCreatePinnedToCore(&I2CSlave1Init,"I2CSlave1Init",2048,NULL,4,NULL,1);
     //xTaskCreatePinnedToCore(&I2cTest,"I2Ctest",2048,NULL,3,NULL,1);
     //LoRaOPMode(LORA_MODE_STB);
     xTaskCreate(&WIFI_Connect,"WIFI_Connect",16384,NULL,4,NULL);
-    //xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",16384,UART_NUM_2,5,NULL,1);
+    xTaskCreate(&updateGithub, "Update_Github",16384, NULL, 4, NULL);
+    xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",16384,UART_NUM_2,5,NULL,1);
     //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,UART_NUM_2,4,NULL,1);
-    //xTaskCreatePinnedToCore(&LoRa868T20D_write,"LoRa_write",16384,UART_NUM_2,4,NULL,1);
+    xTaskCreatePinnedToCore(&LoRa868T20D_write,"LoRa_write",16384,UART_NUM_2,4,NULL,1);
 }
