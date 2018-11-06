@@ -57,11 +57,28 @@ int UART_sendData(uart_port_t uart_num, const char* log, const char* data){
     return (writeBytes);
 }
 
+uint16_t UART_receiveData(uart_port_t uart_num, const char* log, int expected){
+    uint16_t* data[2048];
+    int readBytes = uart_read_bytes(uart_num, &data, 2048, 5000);
+    if (readBytes > 0){
+        if ((expected == -1) || (readBytes == expected)){
+            ESP_LOGI("LoRa868T20D_READ","Read %d bytes", readBytes);
+        }
+        else{
+            ESP_LOGI("LoRa868T20D_READ","Read %d bytes but %d bytes were expected", readBytes, expected);
+        }
+    }
+    else{
+        ESP_LOGI("LoRa868T20D_READ","No data read");
+    }
+    return(data);
+}
+
 void LoRa868T20D_write(uart_port_t uart_num){
     vTaskDelay(4000/portTICK_RATE_MS);
     while(true){
         
-        UART_sendData(uart_num, "LoRa868T20D_write", "test");
+        UART_sendData(uart_num, "LoRa868T20D_WRITE", "test");
         vTaskDelay(100/portTICK_RATE_MS);
     }
     vTaskDelete(NULL);
@@ -71,16 +88,9 @@ void LoRa868T20D_read(uart_port_t uart_num){
     vTaskDelay(5000/portTICK_RATE_MS);
     bool end = false;
     while(!end){
-        uint16_t* data[2048];
-        int readBytes = uart_read_bytes(uart_num, &data, 2048, 5000);
-        ESP_LOGI("LoRa868T20D_READ","Read %d bytes", readBytes);
-        if (readBytes > 0){
-            printf(data);
-        }
-        else{
-            ESP_LOGI("LoRa868T20D_READ","No data read");
-        }
-        vTaskDelay(100/portTICK_RATE_MS);
+
+        UART_receiveData(uart_num, "LoRa868T20D_READ",-1);
+        vTaskDelay(100/portTICK_RATE_MS);        
     } 
     vTaskDelete(NULL);
 }
