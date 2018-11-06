@@ -8,12 +8,9 @@
 
 // #include "ssd1306.h"
 
-
 #include "LoRa868T20D.h"
 #include "LoRaI2C.h"
 #include "otaUpdate.h"
-
-
 
 void runTest(void* pvParamters){
     time_t time0;

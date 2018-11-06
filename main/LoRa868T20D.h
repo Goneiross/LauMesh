@@ -48,7 +48,12 @@ void LoRa868T20D_ini(uart_port_t uart_num){
 int UART_sendData(uart_port_t uart_num, const char* log, const char* data){
     const int length = strlen(data);
     const int writeBytes = uart_write_bytes(uart_num, data, length);
-    ESP_LOGI(log, "Wrote %d bytes", writeBytes);
+    if (writeBytes != length){
+        ESP_LOGI(log, "ERROR : %d bytes were not written", length - writeBytes);
+    } 
+    else {
+        ESP_LOGI(log, "Wrote %d bytes", writeBytes);
+    }
     return (writeBytes);
 }
 
@@ -56,7 +61,7 @@ void LoRa868T20D_write(uart_port_t uart_num){
     vTaskDelay(4000/portTICK_RATE_MS);
     while(true){
         
-        UART_sendData(uart_num, "LoRa868T20D_read", "test");
+        UART_sendData(uart_num, "LoRa868T20D_write", "test");
         vTaskDelay(6000/portTICK_RATE_MS);
     }
     vTaskDelete(NULL);
@@ -68,12 +73,12 @@ void LoRa868T20D_read(uart_port_t uart_num){
     while(!end){
         uint16_t* data[2048];
         int readBytes = uart_read_bytes(uart_num, &data, 2048, 5000);
-        ESP_LOGI("LoRa868T20D","Read %d bytes", readBytes);
+        ESP_LOGI("LoRa868T20D_READ","Read %d bytes", readBytes);
         if (readBytes > 0){
             printf(data);
         }
         else{
-            printf("ERROR no data\n");
+            ESP_LOGI("LoRa868T20D_READ","No data read");
         }
         vTaskDelay(6000/portTICK_RATE_MS);
     } 
