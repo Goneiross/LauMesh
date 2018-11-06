@@ -1,3 +1,4 @@
+#include "esp_spi_flash.h"
 #include "driver/i2c.h"
 
 #define PIN_I2C_MASTER_DATA 18

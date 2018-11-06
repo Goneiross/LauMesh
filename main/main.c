@@ -3,19 +3,15 @@
 #include <time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_event_loop.h"
+
 #include "esp_system.h"
-#include "esp_spi_flash.h"
 
-
-#include "nvs.h"
-#include "nvs_flash.h"
 // #include "ssd1306.h"
-#include "esp_ota_ops.h"
-#include "esp_wifi.h"
+
 
 #include "LoRa868T20D.h"
 #include "LoRaI2C.h"
+#include "otaUpdate.h"
 
 
 
@@ -29,35 +25,6 @@ void runTest(void* pvParamters){
     vTaskDelete(NULL);
 }
 
-
-
-
-void loadUpdate(){
-    //WIFI
-    nvs_flash_init();
-    esp_event_loop_init(NULL,NULL);
-    tcpip_adapter_init();
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    esp_wifi_init(&cfg);
-    
-    esp_wifi_set_mode( WIFI_MODE_STA);
-    wifi_config_t wifi_cfg = {
-        .sta = {
-            .ssid = "MPSI",
-            .password = "LivingForMaths"
-        },
-    };
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_cfg));
-    esp_wifi_start();
-    //esp_wifi_stop();
-    esp_wifi_connect();
-    //nvs_flash_deinit();
-    //esp_wifi_deinit();
-    vTaskDelete(NULL);
-    printf("done\n");
-}
-
-
 void app_main(){
     printf("Initialisation en cours ... \n");
     xTaskCreatePinnedToCore(&runTest,"runTest",2048,NULL,0,NULL,0);
@@ -69,5 +36,4 @@ void app_main(){
     xTaskCreatePinnedToCore(&LoRa868T20D_ini,"LoRa_ini",16384,UART_NUM_2,5,NULL,1);
     //xTaskCreatePinnedToCore(&LoRa868T20D_read,"LoRa_read",8192,UART_NUM_2,4,NULL,1);
     xTaskCreatePinnedToCore(&LoRa868T20D_write,"LoRa_write",16384,UART_NUM_2,4,NULL,1);
-
 }
