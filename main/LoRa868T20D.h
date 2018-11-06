@@ -62,7 +62,7 @@ void LoRa868T20D_write(uart_port_t uart_num){
     while(true){
         
         UART_sendData(uart_num, "LoRa868T20D_write", "test");
-        vTaskDelay(6000/portTICK_RATE_MS);
+        vTaskDelay(100/portTICK_RATE_MS);
     }
     vTaskDelete(NULL);
 }
@@ -80,7 +80,7 @@ void LoRa868T20D_read(uart_port_t uart_num){
         else{
             ESP_LOGI("LoRa868T20D_READ","No data read");
         }
-        vTaskDelay(6000/portTICK_RATE_MS);
+        vTaskDelay(100/portTICK_RATE_MS);
     } 
     vTaskDelete(NULL);
 }
