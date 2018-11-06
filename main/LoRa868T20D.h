@@ -28,16 +28,7 @@ void LoRa868T20D_ini(uart_port_t uart_num){
     if (err1 != ESP_OK){
         ESP_LOGI("UART_DRIVER", "ERROR during pinSetting");
     }
-    
-    /*
-    uart_set_baudrate(uart_num, 9600);
-    uart_set_word_length(uart_num, UART_DATA_8_BITS);
-    uart_set_parity(uart_num, UART_PARITY_DISABLE);
-    uart_set_stop_bits(uart_num, UART_STOP_BITS_1);
-    uart_set_hw_flow_ctrl(uart_num,UART_HW_FLOWCTRL_DISABLE, 0);
-    */
-
-    
+        
     esp_err_t err2 = uart_driver_install(UART_NUM_2,2048, 2048, 0, NULL, 0);
     if (err2 != ESP_OK){
         ESP_LOGI("UART_DRIVER", "ERROR during installation");
